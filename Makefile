@@ -9,7 +9,7 @@ TARDIST := dist/strcuta-$(PKGVER).tar.gz
 WHEEL := dist/strcuta-$(PKGVER)-py3-none-any.whl
 DIST := $(TARDIST) $(WHEEL)
 
-.PHONY: all clean bdist publish.test publish.pypi
+.PHONY: all clean bdist publish.test publish.pypi licensenote
 
 all: bdist
 
@@ -28,3 +28,6 @@ publish.test: $(DIST)
 
 publish.pypi: $(DIST)
 	twine upload --repository pypi dist/*
+
+licensenote:
+	python script/notelicense.py
