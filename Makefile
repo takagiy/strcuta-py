@@ -11,7 +11,7 @@ DIST := $(TARDIST) $(WHEEL)
 
 .PHONY: all clean bdist publish.test publish.pypi licensenote
 
-all: bdist
+all: licensenote bdist
 
 clean:
 	rm -rf dist
