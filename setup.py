@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 setup(
-        name="strcutau",
+        name="strcuta",
         version="0.0.1",
         url="https://github.com/takagiy/strcutau",
         description="Load UTAU voice banks into the Python data structure.",
