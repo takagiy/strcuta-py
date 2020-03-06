@@ -13,11 +13,11 @@ with open(path.join(pkgdir, "README.md"), encoding="utf-8") as f:
 
 setup(
         name="strcuta",
-        version="0.0.3",
+        version="0.0.4",
         url="https://github.com/takagiy/strcutau",
         description="Loading UTAU voice banks into the Python data structure.",
         long_description=readme_md,
-        long_description_type="text/markdown",
+        long_description_content_type="text/markdown",
         author="takagiy",
         author_email="takagiy.4dev@gmail.com",
         license="BSL-1.0",
