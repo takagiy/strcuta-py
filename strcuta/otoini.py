@@ -19,15 +19,26 @@ def load(path_, root=None, encoding="cp932"):
             line = line.strip()
             [source, params] = line.split("=")
             [name, left_margin, fixed, right_margin, prepronounced, overlapping] = params.split(",")
+
+            rm = float(right_margin)
+            if rm > 0:
+                rm_ = rm
+                duration = None
+            else:
+                rm_ = None
+                duration = - rm
+
             oto_dir = path.dirname(path_) if root == None else path.relpath(path.dirname(path_), root)
             source = path.join(oto_dir, source)
+
             oto_json[name] = {
                     "source": source,
-                    "leftMargin": left_margin,
-                    "rightMargin": right_margin,
-                    "fixed": fixed,
-                    "prepronounced": prepronounced,
-                    "overlapping": overlapping
+                    "leftMargin": float(left_margin),
+                    "rightMargin": rm_,
+                    "duration": duration,
+                    "fixed": float(fixed),
+                    "prepronounced": float(prepronounced),
+                    "overlapping": float(overlapping)
                     }
     return oto_json
 
