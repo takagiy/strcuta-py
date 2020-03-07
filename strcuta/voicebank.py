@@ -13,6 +13,20 @@ from strcuta import frq
 
 _WaveParams = namedtuple("_wave_params", "nchannels sampwidth framerate nframes comptype compname")
 
+class Cursors:
+    def __init__(self, prepronounced, fixed, stretchable, end):
+        self.prepronounced = prepronounced
+        self.fixed = fixed
+        self.stretchable = stretchable
+        self.end = end
+
+class Counts:
+    def __init__(self, prepronounced, fixed, full):
+        self.prepronounced = prepronounced
+        self.fixed = fixed
+        self.full = full
+        self.stretchable = full - fixed
+
 def _ms2nframes(rate, millisec):
     return round(rate * millisec / 1000)
 
@@ -53,32 +67,29 @@ class Type:
                     comptype="NONE",
                     compname="not compressed"
                     ),
+                count=Counts(
+                    prepronounced=nf_prepronounced,
+                    fixed=nf_fixed,
+                    full=nf_used
+                    ),
                 frames=frames,
-                nprepronounced=nf_prepronounced,
-                nfixed=nf_fixed,
                 )
-# class _WaveParams:
-#     def __init__(self, nchannels, sampwidth, framerate, nframes, comptype):
-#         self.nchannels = nchannels
-#         self.sampwidth = sampwidth
-#         self.framerate = framerate
-#         self.nframes = nframes
-#         self.comptype = comptype
 
 class Voice:
-    def __init__(self, frames, wave_parameters, nprepronounced, nfixed):
+    def __init__(self, frames, wave_parameters, count):
         self.wave_parameters=wave_parameters
         self.frames = frames
-        self.nprepronounced = nprepronounced
-        self.nfixed = nfixed
+        self.count = count
+        self.cursor = Cursors(
+                prepronounced=0,
+                fixed=count.prepronounced,
+                stretchable=count.fixed,
+                end=count.full
+                )
 
     def write(self, outputpath):
         with wave.open(outputpath, "wb") as w:
             w.setparams(self.wave_parameters)
-            #w.setnchannels(self.nchannels)
-            #w.setsampwidth(self.sampwidth)
-            #w.setframerate(self.framerate)
-            #w.setnframes(self.nframes)
             w.writeframes(self.frames)
 
 
