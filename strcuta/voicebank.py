@@ -97,9 +97,8 @@ class Type:
                     )
                 )
 
-class Voice:
+class Voice(Wave):
     def __init__(self, wave, count):
-        self.wave = wave
         self.count = count
         self.cursor = Cursors(
                 start=0,
@@ -108,9 +107,9 @@ class Voice:
                 end_fixed=count.fixed,
                 end=count.full
                 )
-
-    def write(self, outputpath):
-        self.wave.write(outputpath)
+        super().__init__(
+                parameter=wave.parameter,
+                frames=wave.frames)
 
     def range_prepronounced(self):
         return slice(self.cursor.start, self.cursor.end_prepronounced)
@@ -126,16 +125,16 @@ class Voice:
 
 
     def prepronounced(self):
-        return self.wave[self.range_prepronounced()]
+        return self[self.range_prepronounced()]
 
     def overlapping(self):
-        return self.wave[self.range_overlapping()]
+        return self[self.range_overlapping()]
 
     def fixed(self):
-        return self.wave[self.range_fixed()]
+        return self[self.range_fixed()]
 
     def stretchable(self):
-        return self.wave[self.range_stretchable()]
+        return self[self.range_stretchable()]
 
 
 def load(path_):
