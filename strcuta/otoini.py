@@ -7,13 +7,13 @@ import glob
 import os.path as path
 
 def load_recursive(path_, encoding="cp932"):
-    oto_json = {}
+    oto_dict = {}
     for oto_ini in glob.glob(path.join(path_, "**/oto.ini"), recursive=True):
-        oto_json.update(load(oto_ini, root=path_, encoding=encoding))
-    return oto_json
+        oto_dict.update(load(oto_ini, root=path_, encoding=encoding))
+    return oto_dict
 
 def load(path_, root=None, encoding="cp932"):
-    oto_json = {}
+    oto_dict = {}
     with open(path_, "r", encoding=encoding) as f:
         for line in f.readlines():
             line = line.strip()
@@ -31,7 +31,7 @@ def load(path_, root=None, encoding="cp932"):
             oto_dir = path.dirname(path_) if root == None else path.relpath(path.dirname(path_), root)
             source = path.join(oto_dir, source)
 
-            oto_json[name] = {
+            oto_dict[name] = {
                     "source": source,
                     "leftMargin": float(left_margin),
                     "rightMargin": rm_,
@@ -40,7 +40,7 @@ def load(path_, root=None, encoding="cp932"):
                     "prepronounced": float(prepronounced),
                     "overlapping": float(overlapping)
                     }
-    return oto_json
+    return oto_dict
 
 if __name__ == "__main__":
     import json
