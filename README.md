@@ -10,12 +10,13 @@
 ```python
 from strcuta import voicebank
 
-renri = voicebank.load("../yaminerenri_1.5-1/闇音レンリ・連続音Ver1.5")
+renri = voicebank.load("../闇音レンリ・連続音Ver1.5")
 uta = renri.voice("u た", "F#5")
 
 uta.write("uta_fs5.wav")
-uta.overlapping().write("uta_fs5_ovl.wav")
-uta.prepronounced().write("uta_fs5_pre.wav")
+uta.overlap().write("uta_fs5_ovl.wav")
+uta.preutterance().write("uta_fs5_pre.wav")
+# fixed() or consonant()
 uta.fixed().write("uta_fs5_vc-.wav")
 uta.stretchable().write("uta_fs5_-v.wav")
 ```

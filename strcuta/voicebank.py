@@ -12,20 +12,22 @@ from strcuta import prefixmap
 from strcuta import frq
 
 class Cursors:
-    def __init__(self, start, end_overlapping, end_prepronounced, end_fixed, end):
+    def __init__(self, start, end_overlap, end_preutterance, end_consonant, end):
         self.start = start
-        self.end_overlapping = end_overlapping
-        self.end_prepronounced = end_prepronounced
-        self.end_fixed = end_fixed
+        self.end_overlap = end_overlap
+        self.end_preutterance = end_preutterance
+        self.end_consonant = end_consonant
+        self.end_fixed = end_consonant
         self.end = end
 
 class Counts:
-    def __init__(self, prepronounced, overlapping, fixed, full):
-        self.prepronounced = prepronounced
-        self.overlapping = overlapping
-        self.fixed = fixed
+    def __init__(self, preutterance, overlap, consonant, full):
+        self.preutterance = preutterance
+        self.overlap = overlap
+        self.consonant = consonant
+        self.fixed = consonant
         self.full = full
-        self.stretchable = full - fixed
+        self.stretchable = full - consonant
 
 _WaveParams = namedtuple("_wave_params", "nchannels sampwidth framerate nframes comptype compname")
 
@@ -69,30 +71,30 @@ class Type:
 
     def voice(self, spell, key):
         info = self.oto[spell + self.prefix[key]]
-        with wave.open(path.join(self.rootdir, info["source"]), mode="rb") as w:
+        with wave.open(path.join(self.rootdir, info.source), mode="rb") as w:
             w = Wave.make(w)
 
             rate = w.parameter.framerate
             nframes = w.parameter.nframes
 
-            nf_left_margin = _ms2nframes(rate, info["leftMargin"])
-            nf_fixed = _ms2nframes(rate, info["fixed"])
-            nf_prepronounced = _ms2nframes(rate, info["prepronounced"])
-            nf_overlapping = _ms2nframes(rate, info["overlapping"])
-            if info["duration"] != None:
-                nf_used = _ms2nframes(rate, info["duration"])
+            nf_offset = _ms2nframes(rate, info.offset)
+            nf_consonant = _ms2nframes(rate, info.consonant)
+            nf_preutterance = _ms2nframes(rate, info.preutterance)
+            nf_overlap = _ms2nframes(rate, info.overlap)
+            if info.duration != None:
+                nf_used = _ms2nframes(rate, info.duration)
             else:
-                nf_right_margin = _ms2nframes(rate, info["rightMargin"])
-                nf_used = nframes - nf_left_margin - nf_right_margin
+                nf_cutoff = _ms2nframes(rate, info.cutoff)
+                nf_used = nframes - nf_offset - nf_cutoff
             
-            w = w[nf_left_margin : nf_left_margin + nf_used]
+            w = w[nf_offset : nf_offset + nf_used]
 
         return Voice(
                 wave=w,
                 count=Counts(
-                    prepronounced=nf_prepronounced,
-                    overlapping=nf_overlapping,
-                    fixed=nf_fixed,
+                    preutterance=nf_preutterance,
+                    overlap=nf_overlap,
+                    consonant=nf_consonant,
                     full=nf_used,
                     )
                 )
@@ -102,36 +104,42 @@ class Voice(Wave):
         self.count = count
         self.cursor = Cursors(
                 start=0,
-                end_overlapping=count.overlapping,
-                end_prepronounced=count.prepronounced,
-                end_fixed=count.fixed,
+                end_overlap=count.overlap,
+                end_preutterance=count.preutterance,
+                end_consonant=count.consonant,
                 end=count.full
                 )
         super().__init__(
                 parameter=wave.parameter,
                 frames=wave.frames)
 
-    def range_prepronounced(self):
-        return slice(self.cursor.start, self.cursor.end_prepronounced)
+    def range_preutterance(self):
+        return slice(self.cursor.start, self.cursor.end_preutterance)
 
-    def range_overlapping(self):
-        return slice(self.cursor.start, self.cursor.end_overlapping)
+    def range_overlap(self):
+        return slice(self.cursor.start, self.cursor.end_overlap)
+
+    def range_consonant(self):
+        return slice(self.cursor.start, self.cursor.end_consonant)
 
     def range_fixed(self):
-        return slice(self.cursor.start, self.cursor.end_fixed)
+        return self.range_fixed()
 
     def range_stretchable(self):
-        return slice(self.cursor.end_fixed, self.cursor.end)
+        return slice(self.cursor.end_consonant, self.cursor.end)
 
 
-    def prepronounced(self):
-        return self[self.range_prepronounced()]
+    def preutterance(self):
+        return self[self.range_preutterance()]
 
-    def overlapping(self):
-        return self[self.range_overlapping()]
+    def overlap(self):
+        return self[self.range_overlap()]
+
+    def consonant(self):
+        return self[self.range_consonant()]
 
     def fixed(self):
-        return self[self.range_fixed()]
+        return self.consonant()
 
     def stretchable(self):
         return self[self.range_stretchable()]

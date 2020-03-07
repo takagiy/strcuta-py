@@ -7,7 +7,7 @@ import glob
 from os import path
 from collections import namedtuple
 
-_OtoNode = namedtuple("_OtoNode", "source leftMargin rightMargin duration fixed prepronounced overlapping")
+_OtoNode = namedtuple("_OtoNode", "source offset cutoff duration consonant preutterance overlap")
 
 def load_recursive(path_, encoding="cp932", node_type=_OtoNode):
     oto_dict = {}
@@ -21,27 +21,27 @@ def load(path_, root=None, encoding="cp932", node_type=_OtoNode):
         for line in f.readlines():
             line = line.strip()
             [source, params] = line.split("=")
-            [name, left_margin, fixed, right_margin, prepronounced, overlapping] = params.split(",")
+            [name, offset, consonant, cutoff, preutterance, overlap] = params.split(",")
 
-            rm = float(right_margin)
-            if rm > 0:
-                rm_ = rm
+            cf = float(cutoff)
+            if cf > 0:
+                cf_ = cf
                 duration = None
             else:
-                rm_ = None
-                duration = - rm
+                cf_ = None
+                duration = -cf
 
             oto_dir = path.dirname(path_) if root == None else path.relpath(path.dirname(path_), root)
             source = path.join(oto_dir, source)
 
             oto_dict[name]= node_type(
                     source=source,
-                    leftMargin=float(left_margin),
-                    rightMargin=rm_,
+                    offset=float(offset),
+                    cutoff=cf_,
                     duration=duration,
-                    fixed=float(fixed),
-                    prepronounced=float(prepronounced),
-                    overlapping=float(overlapping)
+                    consonant=float(consonant),
+                    preutterance=float(preutterance),
+                    overlap=float(overlap)
                     )
     return oto_dict
 
