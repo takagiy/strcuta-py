@@ -12,22 +12,23 @@ from strcuta import prefixmap
 from strcuta import frq
 
 class Cursors:
-    def __init__(self, start, end_overlap, end_preutterance, end_consonant, end):
+    def __init__(self, start, end_ovl, end_pre, end_con, end):
         self.start = start
-        self.end_overlap = end_overlap
-        self.end_preutterance = end_preutterance
-        self.end_consonant = end_consonant
-        self.end_fixed = end_consonant
+        self.end_ovl = end_ovl
+        self.end_pre = end_pre
+        self.end_con = end_con
+        self.end_fixed = self.end_con
         self.end = end
 
 class Counts:
-    def __init__(self, preutterance, overlap, consonant, full):
-        self.preutterance = preutterance
-        self.overlap = overlap
-        self.consonant = consonant
-        self.fixed = consonant
+    def __init__(self, pre, ovl, con, full):
+        self.pre = pre
+        self.ovl = ovl
+        self.con = con
+        self.fixed = self.con
         self.full = full
-        self.stretchable = full - consonant
+        self.vow = full - con
+        self.stretchable = self.vow
 
 _WaveParams = namedtuple("_wave_params", "nchannels sampwidth framerate nframes comptype compname")
 
@@ -90,9 +91,9 @@ class Type:
             nframes = w.parameter.nframes
 
             nf_offset = _ms2nframes(rate, info.offset)
-            nf_consonant = _ms2nframes(rate, info.consonant)
-            nf_preutterance = _ms2nframes(rate, info.preutterance)
-            nf_overlap = _ms2nframes(rate, info.overlap)
+            nf_con = _ms2nframes(rate, info.consonant)
+            nf_pre = _ms2nframes(rate, info.preutterance)
+            nf_ovl = _ms2nframes(rate, info.overlap)
             if info.duration != None:
                 nf_used = _ms2nframes(rate, info.duration)
             else:
@@ -104,9 +105,9 @@ class Type:
         return Voice(
                 wave=w,
                 count=Counts(
-                    preutterance=nf_preutterance,
-                    overlap=nf_overlap,
-                    consonant=nf_consonant,
+                    pre=nf_pre,
+                    ovl=nf_ovl,
+                    con=nf_con,
                     full=nf_used,
                     )
                 )
@@ -116,45 +117,51 @@ class Voice(Wave):
         self.count = count
         self.cursor = Cursors(
                 start=0,
-                end_overlap=count.overlap,
-                end_preutterance=count.preutterance,
-                end_consonant=count.consonant,
+                end_ovl=count.ovl,
+                end_pre=count.pre,
+                end_con=count.con,
                 end=count.full
                 )
         super().__init__(
                 parameter=wave.parameter,
                 frames=wave.frames)
 
-    def range_preutterance(self):
-        return slice(self.cursor.start, self.cursor.end_preutterance)
+    def range_pre(self):
+        return slice(self.cursor.start, self.cursor.end_pre)
 
-    def range_overlap(self):
-        return slice(self.cursor.start, self.cursor.end_overlap)
+    def range_ovl(self):
+        return slice(self.cursor.start, self.cursor.end_ovl)
 
-    def range_consonant(self):
-        return slice(self.cursor.start, self.cursor.end_consonant)
+    def range_con(self):
+        return slice(self.cursor.start, self.cursor.end_con)
 
     def range_fixed(self):
         return self.range_fixed()
 
+    def range_vow(self):
+        return slice(self.cursor.end_con, self.cursor.end)
+
     def range_stretchable(self):
-        return slice(self.cursor.end_consonant, self.cursor.end)
+        return self.range_vow()
 
 
-    def preutterance(self):
-        return self[self.range_preutterance()]
+    def pre(self):
+        return self[self.range_pre()]
 
-    def overlap(self):
-        return self[self.range_overlap()]
+    def ovl(self):
+        return self[self.range_ovl()]
 
-    def consonant(self):
-        return self[self.range_consonant()]
+    def con(self):
+        return self[self.range_con()]
 
     def fixed(self):
-        return self.consonant()
+        return self.con()
+
+    def vow(self):
+        return self[self.range_vow()]
 
     def stretchable(self):
-        return self[self.range_stretchable()]
+        return self.vow()
 
 
 def load(path_):

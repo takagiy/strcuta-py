@@ -14,11 +14,16 @@ renri = voicebank.load("../闇音レンリ・連続音Ver1.5")
 uta = renri.voice("u た", "F#5")
 
 uta.write("uta_fs5.wav")
-uta.overlap().write("uta_fs5_ovl.wav")
-uta.preutterance().write("uta_fs5_pre.wav")
-# fixed() or consonant()
+uta.ovl().write("uta_fs5_ovl.wav")
+uta.pre().write("uta_fs5_pre.wav")
+# fixed() or con()
 uta.fixed().write("uta_fs5_vc-.wav")
+# stretchable() or vow()
 uta.stretchable().write("uta_fs5_-v.wav")
+
+# play voice with the sounddevice package
+uta.play()
+uta.ovl().play()
 ```
 
 Currently, `strcuta` can load -
