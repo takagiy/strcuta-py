@@ -4,15 +4,18 @@
 # https://www.boost.org/LICENSE_1_0.txt)
 
 import glob
-import os.path as path
+from os import path
+from collections import namedtuple
 
-def load_recursive(path_, encoding="cp932"):
+_OtoNode = namedtuple("_OtoNode", "source leftMargin rightMargin duration fixed prepronounced overlapping")
+
+def load_recursive(path_, encoding="cp932", node_type=_OtoNode):
     oto_dict = {}
     for oto_ini in glob.glob(path.join(path_, "**/oto.ini"), recursive=True):
-        oto_dict.update(load(oto_ini, root=path_, encoding=encoding))
+        oto_dict.update(load(oto_ini, root=path_, encoding=encoding, node_type=node_type))
     return oto_dict
 
-def load(path_, root=None, encoding="cp932"):
+def load(path_, root=None, encoding="cp932", node_type=_OtoNode):
     oto_dict = {}
     with open(path_, "r", encoding=encoding) as f:
         for line in f.readlines():
@@ -31,18 +34,18 @@ def load(path_, root=None, encoding="cp932"):
             oto_dir = path.dirname(path_) if root == None else path.relpath(path.dirname(path_), root)
             source = path.join(oto_dir, source)
 
-            oto_dict[name] = {
-                    "source": source,
-                    "leftMargin": float(left_margin),
-                    "rightMargin": rm_,
-                    "duration": duration,
-                    "fixed": float(fixed),
-                    "prepronounced": float(prepronounced),
-                    "overlapping": float(overlapping)
-                    }
+            oto_dict[name]= node_type(
+                    source=source,
+                    leftMargin=float(left_margin),
+                    rightMargin=rm_,
+                    duration=duration,
+                    fixed=float(fixed),
+                    prepronounced=float(prepronounced),
+                    overlapping=float(overlapping)
+                    )
     return oto_dict
 
 if __name__ == "__main__":
     import json
 
-    print(json.dumps(load_recursive("."), indent=2, ensure_ascii=False))
+    print(json.dumps(load_recursive(".", node_type=dict), indent=2, ensure_ascii=False))
