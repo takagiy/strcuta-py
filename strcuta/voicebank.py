@@ -60,6 +60,18 @@ class Wave:
             w.setparams(self.parameter)
             w.writeframes(self.frames)
 
+    _audio_stream = None
+
+    def play(self):
+        from sounddevice import RawOutputStream
+        Wave._audio_stream = Wave._audio_stream or RawOutputStream(
+                channels=self.parameter.nchannels,
+                dtype='int' + str(8 * self.parameter.sampwidth),
+                samplerate=self.parameter.framerate * self.parameter.nchannels,)
+        Wave._audio_stream.start()
+        Wave._audio_stream.write(self.frames)
+
+
 def _ms2nframes(rate, millisec):
     return round(rate * millisec / 1000)
 
