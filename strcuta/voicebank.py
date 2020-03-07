@@ -11,8 +11,6 @@ from strcuta import otoini
 from strcuta import prefixmap
 from strcuta import frq
 
-_WaveParams = namedtuple("_wave_params", "nchannels sampwidth framerate nframes comptype compname")
-
 class Cursors:
     def __init__(self, start, end_overlapping, end_prepronounced, end_fixed, end):
         self.start = start
@@ -29,6 +27,37 @@ class Counts:
         self.full = full
         self.stretchable = full - fixed
 
+_WaveParams = namedtuple("_wave_params", "nchannels sampwidth framerate nframes comptype compname")
+
+class Wave:
+    def __init__(self, parameter, frames):
+        assert parameter.nchannels == 1
+        self.parameter = parameter
+        self.frames = frames
+
+    @staticmethod
+    def make(wave_):
+        return Wave(
+                parameter=wave_.getparams(),
+                frames=wave_.readframes(wave_.getnframes())
+                )
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            k = slice(key.start * self.parameter.sampwidth, key.stop * self.parameter.sampwidth)
+            return Wave(
+                    parameter=self.parameter._replace(nframes=k.stop - k.start),
+                    frames=self.frames[k])
+        elif isinstance(key, int):
+            return self.frames[key * self.parameter.sampwidth]
+        else:
+            raise "not an index"
+
+    def write(self, outputpath):
+        with wave.open(outputpath, mode="wb") as w:
+            w.setparams(self.parameter)
+            w.writeframes(self.frames)
+
 def _ms2nframes(rate, millisec):
     return round(rate * millisec / 1000)
 
@@ -41,13 +70,11 @@ class Type:
     def voice(self, spell, key):
         info = self.oto[spell + self.prefix[key]]
         with wave.open(path.join(self.rootdir, info["source"]), mode="rb") as w:
+            w = Wave.make(w)
 
-            rate = w.getframerate()
-            sampwidth = w.getsampwidth()
-            nchannels = w.getnchannels()
-            assert nchannels == 1
+            rate = w.parameter.framerate
+            nframes = w.parameter.nframes
 
-            nframes = w.getnframes()
             nf_left_margin = _ms2nframes(rate, info["leftMargin"])
             nf_fixed = _ms2nframes(rate, info["fixed"])
             nf_prepronounced = _ms2nframes(rate, info["prepronounced"])
@@ -58,31 +85,21 @@ class Type:
                 nf_right_margin = _ms2nframes(rate, info["rightMargin"])
                 nf_used = nframes - nf_left_margin - nf_right_margin
             
-            w.readframes(nf_left_margin)
-            frames = w.readframes(nf_used)
+            w = w[nf_left_margin : nf_left_margin + nf_used]
 
         return Voice(
-                wave_parameters=_WaveParams(
-                    sampwidth=sampwidth,
-                    nframes=nf_used,
-                    nchannels=nchannels,
-                    framerate=rate,
-                    comptype="NONE",
-                    compname="not compressed"
-                    ),
+                wave=w,
                 count=Counts(
                     prepronounced=nf_prepronounced,
                     overlapping=nf_overlapping,
                     fixed=nf_fixed,
                     full=nf_used,
-                    ),
-                frames=frames,
+                    )
                 )
 
 class Voice:
-    def __init__(self, frames, wave_parameters, count):
-        self.wave_parameters=wave_parameters
-        self.frames = frames
+    def __init__(self, wave, count):
+        self.wave = wave
         self.count = count
         self.cursor = Cursors(
                 start=0,
@@ -93,9 +110,7 @@ class Voice:
                 )
 
     def write(self, outputpath):
-        with wave.open(outputpath, "wb") as w:
-            w.setparams(self.wave_parameters)
-            w.writeframes(self.frames)
+        self.wave.write(outputpath)
 
     def range_prepronounced(self):
         return slice(self.cursor.start, self.cursor.end_prepronounced)
@@ -108,6 +123,19 @@ class Voice:
 
     def range_stretchable(self):
         return slice(self.cursor.end_fixed, self.cursor.end)
+
+
+    def prepronounced(self):
+        return self.wave[self.range_prepronounced()]
+
+    def overlapping(self):
+        return self.wave[self.range_overlapping()]
+
+    def fixed(self):
+        return self.wave[self.range_fixed()]
+
+    def stretchable(self):
+        return self.wave[self.range_stretchable()]
 
 
 def load(path_):
