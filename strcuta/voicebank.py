@@ -14,15 +14,17 @@ from strcuta import frq
 _WaveParams = namedtuple("_wave_params", "nchannels sampwidth framerate nframes comptype compname")
 
 class Cursors:
-    def __init__(self, prepronounced, fixed, stretchable, end):
-        self.prepronounced = prepronounced
-        self.fixed = fixed
-        self.stretchable = stretchable
+    def __init__(self, start, end_overlapping, end_prepronounced, end_fixed, end):
+        self.start = start
+        self.end_overlapping = end_overlapping
+        self.end_prepronounced = end_prepronounced
+        self.end_fixed = end_fixed
         self.end = end
 
 class Counts:
-    def __init__(self, prepronounced, fixed, full):
+    def __init__(self, prepronounced, overlapping, fixed, full):
         self.prepronounced = prepronounced
+        self.overlapping = overlapping
         self.fixed = fixed
         self.full = full
         self.stretchable = full - fixed
@@ -49,6 +51,7 @@ class Type:
             nf_left_margin = _ms2nframes(rate, info["leftMargin"])
             nf_fixed = _ms2nframes(rate, info["fixed"])
             nf_prepronounced = _ms2nframes(rate, info["prepronounced"])
+            nf_overlapping = _ms2nframes(rate, info["overlapping"])
             if info["duration"] != None:
                 nf_used = _ms2nframes(rate, info["duration"])
             else:
@@ -69,8 +72,9 @@ class Type:
                     ),
                 count=Counts(
                     prepronounced=nf_prepronounced,
+                    overlapping=nf_overlapping,
                     fixed=nf_fixed,
-                    full=nf_used
+                    full=nf_used,
                     ),
                 frames=frames,
                 )
@@ -81,9 +85,10 @@ class Voice:
         self.frames = frames
         self.count = count
         self.cursor = Cursors(
-                prepronounced=0,
-                fixed=count.prepronounced,
-                stretchable=count.fixed,
+                start=0,
+                end_overlapping=count.overlapping,
+                end_prepronounced=count.prepronounced,
+                end_fixed=count.fixed,
                 end=count.full
                 )
 
@@ -91,6 +96,18 @@ class Voice:
         with wave.open(outputpath, "wb") as w:
             w.setparams(self.wave_parameters)
             w.writeframes(self.frames)
+
+    def range_prepronounced(self):
+        return slice(self.cursor.start, self.cursor.end_prepronounced)
+
+    def range_overlapping(self):
+        return slice(self.cursor.start, self.cursor.end_overlapping)
+
+    def range_fixed(self):
+        return slice(self.cursor.start, self.cursor.end_fixed)
+
+    def range_stretchable(self):
+        return slice(self.cursor.end_fixed, self.cursor.end)
 
 
 def load(path_):
