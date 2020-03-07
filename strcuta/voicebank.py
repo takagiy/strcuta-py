@@ -11,6 +11,8 @@ from strcuta import otoini
 from strcuta import prefixmap
 from strcuta import frq
 
+_WaveParams = namedtuple("_wave_params", "nchannels sampwidth framerate nframes comptype compname")
+
 def _ms2nframes(rate, millisec):
     return round(rate * millisec / 1000)
 
@@ -43,15 +45,17 @@ class Type:
             frames = w.readframes(nf_used)
 
         return Voice(
-                sampwidth=sampwidth,
+                wave_parameters=_WaveParams(
+                    sampwidth=sampwidth,
+                    nframes=nf_used,
+                    nchannels=nchannels,
+                    framerate=rate,
+                    comptype="NONE",
+                    compname="not compressed"
+                    ),
                 frames=frames,
-                nframes=nf_used,
-                nchannels=nchannels,
-                framerate=rate,
                 nprepronounced=nf_prepronounced,
                 nfixed=nf_fixed,
-                comptype="NONE",
-                compname="not compressed"
                 )
 # class _WaveParams:
 #     def __init__(self, nchannels, sampwidth, framerate, nframes, comptype):
@@ -61,32 +65,16 @@ class Type:
 #         self.nframes = nframes
 #         self.comptype = comptype
 
-_WaveParams = namedtuple("_wave_params", "nchannels sampwidth framerate nframes comptype compname")
-
 class Voice:
-    def __init__(self, frames, sampwidth, nframes, nchannels, framerate, nprepronounced, nfixed, comptype, compname):
+    def __init__(self, frames, wave_parameters, nprepronounced, nfixed):
+        self.wave_parameters=wave_parameters
         self.frames = frames
-        self.sampwidth = sampwidth
-        self.nframes  = nframes
-        self.nchannels = nchannels
-        self.framerate = framerate
-        self.comptype = comptype
-        self.compname = compname
         self.nprepronounced = nprepronounced
         self.nfixed = nfixed
 
-    def getparams(self):
-        return _WaveParams(
-                nchannels=self.nchannels,
-                sampwidth=self.sampwidth,
-                framerate=self.framerate,
-                nframes=self.nframes,
-                comptype=self.comptype,
-                compname=self.compname)
-
     def write(self, outputpath):
         with wave.open(outputpath, "wb") as w:
-            w.setparams(self.getparams())
+            w.setparams(self.wave_parameters)
             #w.setnchannels(self.nchannels)
             #w.setsampwidth(self.sampwidth)
             #w.setframerate(self.framerate)
