@@ -13,7 +13,7 @@ from strcuta import voicebank
 # Load the voice bank "Yamine Renri VCV ver.1.5" (Thanks to the owner :D).
 renri = voicebank.load("../闇音レンリ・連続音Ver1.5")
 
-# Resolve the spell (u-ta) and the pitch (F#4) into the voice as a wave data in
+# Resolve the spell (u-ta) and the pitch (F#5) into the voice as a wave data in
 # accordance with the "oto.ini"s and the "prefix.map".
 uta = renri.voice("u た", "F#5")
 
