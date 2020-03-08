@@ -3,27 +3,27 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # https://www.boost.org/LICENSE_1_0.txt)
 
-from os import path
-from glob import glob
-from itertools import chain
-from collections import namedtuple
+from os import path as _path
+from glob import glob as _glob
+from itertools import chain as _chain
+from collections import namedtuple as _namedtuple
 
-_OtoNode = namedtuple("_OtoNode", "source offset cutoff duration consonant preutterance overlap")
+_OtoNode = _namedtuple("_OtoNode", "source offset cutoff duration consonant preutterance overlap")
 
-def load_recursive(path_, encoding="cp932", node_type=_OtoNode, greedy_recursion=True):
+def load_recursive(path, encoding="cp932", node_type=_OtoNode, greedy_recursion=True):
     if greedy_recursion:
-        inis = glob(path.join(path_, "**/oto.ini"), recursive=True)
+        inis = _glob(_path.join(path, "**/oto.ini"), recursive=True)
     else:
-        inis = chain(glob(path.join(path_, "oto.ini")), glob(path.join(path_, "*/oto.ini")))
+        inis = _chain(_glob(_path.join(path, "oto.ini")), _glob(_path.join(path, "*/oto.ini")))
 
     oto_dict = {}
     for oto_ini in inis:
-        oto_dict.update(load(oto_ini, root=path_, encoding=encoding, node_type=node_type))
+        oto_dict.update(load(oto_ini, root=path, encoding=encoding, node_type=node_type))
     return oto_dict
 
-def load(path_, root=None, encoding="cp932", node_type=_OtoNode):
+def load(path, root=None, encoding="cp932", node_type=_OtoNode):
     oto_dict = {}
-    with open(path_, "r", encoding=encoding) as f:
+    with open(path, "r", encoding=encoding) as f:
         for line in f.readlines():
             line = line.strip()
             [source, params] = line.split("=")
@@ -37,8 +37,8 @@ def load(path_, root=None, encoding="cp932", node_type=_OtoNode):
                 cf_ = None
                 duration = -cf
 
-            oto_dir = path.dirname(path_) if root == None else path.relpath(path.dirname(path_), root)
-            source = path.join(oto_dir, source)
+            oto_dir = _path.dirname(path) if root == None else _path.relpath(_path.dirname(path), root)
+            source = _path.join(oto_dir, source)
 
             oto_dict[name]= node_type(
                     source=source,

@@ -3,7 +3,7 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # https://www.boost.org/LICENSE_1_0.txt)
 
-import struct
+import struct as _struct
 
 class Type:
     def __init__(self, format_id, sample_width, key_frequency, comment, nsamples, frq_samples, amp_samples):
@@ -35,8 +35,8 @@ class Type:
             f.write(buffer_)
 
 
-_fmt_hdr = struct.Struct('<8sid16si')
-_fmt_smp = struct.Struct('<dd')
+_fmt_hdr = _struct.Struct('<8sid16si')
+_fmt_smp = _struct.Struct('<dd')
 
 def load(path_):
     with open(path_, "rb") as f:

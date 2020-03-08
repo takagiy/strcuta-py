@@ -3,12 +3,12 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # https://www.boost.org/LICENSE_1_0.txt)
 
-from os import path
+from os import path as _path
 
-from strcuta import otoini
-from strcuta import prefixmap
-from strcuta import frq
-from strcuta import wav
+from strcuta import otoini as _otoini
+from strcuta import prefixmap as _prefixmap
+from strcuta import frq as _frq
+from strcuta import wav as _wav
 
 class Cursors:
     def __init__(self, start, end_ovl, end_pre, end_con, end):
@@ -46,7 +46,7 @@ class Type:
 
     def voice(self, spell, key):
         info = self.oto(spell, key)
-        w = wav.load(path.join(self.rootdir, info.source))
+        w = _wav.load(_path.join(self.rootdir, info.source))
 
         rate = w.parameter.framerate
         nframes = w.parameter.nframes
@@ -71,7 +71,7 @@ class Type:
                     )
                 )
 
-class Voice(wav.Type):
+class Voice(_wav.Type):
     def __init__(self, wave, count):
         self.count = count
         self.cursor = Cursors(
@@ -129,10 +129,10 @@ class Voice(wav.Type):
         return self[self.range_intime()]
 
 
-def load(path_, encoding='cp932', greedy_oto_load=False):
-    otos = otoini.load_recursive(path_, encoding=encoding, greedy_recursion=greedy_oto_load)
-    prefixes = prefixmap.load(path.join(path_, 'prefix.map'), encoding=encoding)
+def load(path, encoding='cp932', greedy_oto_load=False):
+    otos = _otoini.load_recursive(path, encoding=encoding, greedy_recursion=greedy_oto_load)
+    prefixes = _prefixmap.load(_path.join(path, 'prefix.map'), encoding=encoding)
     return Type(
-            rootdir=path_,
+            rootdir=path,
             otos=otos,
             prefixes=prefixes)

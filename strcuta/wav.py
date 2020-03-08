@@ -3,7 +3,7 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # https://www.boost.org/LICENSE_1_0.txt)
 
-import wave
+import wave as _wave
 
 class Type:
     def __init__(self, parameter, frames):
@@ -23,7 +23,7 @@ class Type:
             raise "not an index"
 
     def write(self, outputpath):
-        with wave.open(outputpath, mode="wb") as w:
+        with _wave.open(outputpath, mode="wb") as w:
             w.setparams(self.parameter)
             w.writeframes(self.frames)
 
@@ -38,8 +38,8 @@ class Type:
         Type._audio_stream.start()
         Type._audio_stream.write(self.frames)
 
-def load(path_):
-    with wave.open(path_, mode="rb") as w:
+def load(path):
+    with _wave.open(path, mode="rb") as w:
         return Type(
                 parameter=w.getparams(),
                 frames=w.readframes(w.getnframes())
