@@ -20,6 +20,8 @@ clean:
 
 bdist: $(DIST)
 
+$(SRC): licensenote
+
 $(DIST): $(SRC) setup.py
 	python setup.py sdist bdist_wheel
 
@@ -29,7 +31,7 @@ publish.test: $(DIST)
 publish.pypi: $(DIST)
 	twine upload --repository pypi dist/*
 
-publish.github: licensenote
+publish.github: $(SRC)
 	git tag -a v$(PKGVER) -m "update to v$(PKGVER)"
 	git push --tag
 
