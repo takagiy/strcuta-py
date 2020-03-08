@@ -29,5 +29,9 @@ publish.test: $(DIST)
 publish.pypi: $(DIST)
 	twine upload --repository pypi dist/*
 
+publish.github: licensenote
+	git tag -a v$(PKGVER) -m "update to v$(PKGVER)"
+	git push --tag
+
 licensenote:
 	python script/notelicense.py
