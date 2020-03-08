@@ -29,7 +29,7 @@ uta.pre().write("uta_pre.wav")
 uta.con().write("uta_vc-.wav")
 # "Vowel". vow() or stretchable()
 uta.vow().write("uta_-v.wav")
-# Exepct for the preutterance
+# Except for the preutterance
 uta.intime().write("uta_intime.wav")
 
 # Also play voices with the "sounddevice" package.
