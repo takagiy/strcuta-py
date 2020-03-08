@@ -3,13 +3,12 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # https://www.boost.org/LICENSE_1_0.txt)
 
-import wave
 from os import path
-from collections import namedtuple
 
 from strcuta import otoini
 from strcuta import prefixmap
 from strcuta import frq
+from strcuta import wav
 
 class Cursors:
     def __init__(self, start, end_ovl, end_pre, end_con, end):
@@ -30,49 +29,6 @@ class Counts:
         self.vow = full - con
         self.stretchable = self.vow
 
-_WaveParams = namedtuple("_wave_params", "nchannels sampwidth framerate nframes comptype compname")
-
-class Wave:
-    def __init__(self, parameter, frames):
-        assert parameter.nchannels == 1
-        self.parameter = parameter
-        self.frames = frames
-
-    @staticmethod
-    def make(wave_):
-        return Wave(
-                parameter=wave_.getparams(),
-                frames=wave_.readframes(wave_.getnframes())
-                )
-
-    def __getitem__(self, key):
-        if isinstance(key, slice):
-            k = slice(key.start * self.parameter.sampwidth, key.stop * self.parameter.sampwidth)
-            return Wave(
-                    parameter=self.parameter._replace(nframes=k.stop - k.start),
-                    frames=self.frames[k])
-        elif isinstance(key, int):
-            return self.frames[key * self.parameter.sampwidth]
-        else:
-            raise "not an index"
-
-    def write(self, outputpath):
-        with wave.open(outputpath, mode="wb") as w:
-            w.setparams(self.parameter)
-            w.writeframes(self.frames)
-
-    _audio_stream = None
-
-    def play(self):
-        from sounddevice import RawOutputStream
-        Wave._audio_stream = Wave._audio_stream or RawOutputStream(
-                channels=self.parameter.nchannels,
-                dtype='int' + str(8 * self.parameter.sampwidth),
-                samplerate=self.parameter.framerate * self.parameter.nchannels,)
-        Wave._audio_stream.start()
-        Wave._audio_stream.write(self.frames)
-
-
 def _ms2nframes(rate, millisec):
     return round(rate * millisec / 1000)
 
@@ -90,26 +46,23 @@ class Type:
 
     def voice(self, spell, key):
         info = self.oto(spell, key)
-        with wave.open(path.join(self.rootdir, info.source), mode="rb") as w:
-            w = Wave.make(w)
+        w = wav.load(path.join(self.rootdir, info.source))
 
-            rate = w.parameter.framerate
-            nframes = w.parameter.nframes
+        rate = w.parameter.framerate
+        nframes = w.parameter.nframes
 
-            nf_offset = _ms2nframes(rate, info.offset)
-            nf_con = _ms2nframes(rate, info.consonant)
-            nf_pre = _ms2nframes(rate, info.preutterance)
-            nf_ovl = _ms2nframes(rate, info.overlap)
-            if info.duration != None:
-                nf_used = _ms2nframes(rate, info.duration)
-            else:
-                nf_cutoff = _ms2nframes(rate, info.cutoff)
-                nf_used = nframes - nf_offset - nf_cutoff
-            
-            w = w[nf_offset : nf_offset + nf_used]
-
+        nf_offset = _ms2nframes(rate, info.offset)
+        nf_con = _ms2nframes(rate, info.consonant)
+        nf_pre = _ms2nframes(rate, info.preutterance)
+        nf_ovl = _ms2nframes(rate, info.overlap)
+        if info.duration != None:
+            nf_used = _ms2nframes(rate, info.duration)
+        else:
+            nf_cutoff = _ms2nframes(rate, info.cutoff)
+            nf_used = nframes - nf_offset - nf_cutoff
+        
         return Voice(
-                wave=w,
+                wave=w[nf_offset : nf_offset + nf_used],
                 count=Counts(
                     pre=nf_pre,
                     ovl=nf_ovl,
@@ -118,7 +71,7 @@ class Type:
                     )
                 )
 
-class Voice(Wave):
+class Voice(wav.Type):
     def __init__(self, wave, count):
         self.count = count
         self.cursor = Cursors(
