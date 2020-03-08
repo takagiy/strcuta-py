@@ -170,8 +170,8 @@ class Voice(Wave):
         return self[self.range_intime()]
 
 
-def load(path_, encoding='cp932'):
-    oto = otoini.load_recursive(path_, encoding=encoding)
+def load(path_, encoding='cp932', greedy_oto_load=False):
+    oto = otoini.load_recursive(path_, encoding=encoding, greedy_recursion=greedy_oto_load)
     prefix = prefixmap.load(path.join(path_, 'prefix.map'), encoding=encoding)
     return Type(
             rootdir=path_,
