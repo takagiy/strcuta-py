@@ -7,7 +7,7 @@
 
 ## Little example
 
-```
+```python
 from strcuta import voicebank
 
 # Load the voice bank "Yamine Renri VCV ver.1.5" (Thanks to the owner :D).
