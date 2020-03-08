@@ -24,7 +24,6 @@ setup(
         long_description_content_type="text/markdown",
         author="takagiy",
         author_email="takagiy.4dev@gmail.com",
-        license="BSL-1.0",
         classifiers=[
             "License :: OSI Approved :: Boost Software License 1.0 (BSL-1.0)",
             "Development Status :: 3 - Alpha"
