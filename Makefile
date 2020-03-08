@@ -33,7 +33,7 @@ publish.pypi: $(DIST)
 
 publish.github: $(SRC)
 	git tag -a v$(PKGVER) -m "update to v$(PKGVER)"
-	git push --tag
+	git push --follow-tags
 
 licensenote:
 	python script/notelicense.py
