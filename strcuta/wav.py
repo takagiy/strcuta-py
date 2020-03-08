@@ -11,6 +11,9 @@ class Type:
         self.parameter = parameter
         self.frames = frames
 
+    def __len__(self):
+        return self.parameter.nframes
+
     def __getitem__(self, key):
         if isinstance(key, slice):
             k = slice(key.start * self.parameter.sampwidth, key.stop * self.parameter.sampwidth)
