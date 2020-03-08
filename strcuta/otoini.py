@@ -3,15 +3,21 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # https://www.boost.org/LICENSE_1_0.txt)
 
-import glob
 from os import path
+from glob import glob
+from itertools import chain
 from collections import namedtuple
 
 _OtoNode = namedtuple("_OtoNode", "source offset cutoff duration consonant preutterance overlap")
 
-def load_recursive(path_, encoding="cp932", node_type=_OtoNode):
+def load_recursive(path_, encoding="cp932", node_type=_OtoNode, greedy_recursion=True):
+    if greedy_recursion:
+        inis = glob(path.join(path_, "**/oto.ini"), recursive=True)
+    else:
+        inis = chain(glob(path.join(path_, "oto.ini")), glob(path.join(path_, "*/oto.ini")))
+
     oto_dict = {}
-    for oto_ini in glob.glob(path.join(path_, "**/oto.ini"), recursive=True):
+    for oto_ini in inis:
         oto_dict.update(load(oto_ini, root=path_, encoding=encoding, node_type=node_type))
     return oto_dict
 
