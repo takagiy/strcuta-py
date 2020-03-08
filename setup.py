@@ -13,7 +13,7 @@ with open(path.join(pkgdir, "README.md"), encoding="utf-8") as f:
 
 setup(
         name="strcuta",
-        version="0.0.11",
+        version="0.0.12",
         url="https://github.com/takagiy/strcuta-py",
         project_urls={
             "Repository": "https://github.com/takagiy/strcuta-py",
@@ -25,6 +25,10 @@ setup(
         author="takagiy",
         author_email="takagiy.4dev@gmail.com",
         license="BSL-1.0",
+        classifiers=[
+            "License :: OSI Approved :: Boost Software License 1.0 (BSL-1.0)",
+            "Development Status :: 3 - Alpha"
+            ],
         packages=find_packages(),
         include_package_data=False,
         install_requires=[],
