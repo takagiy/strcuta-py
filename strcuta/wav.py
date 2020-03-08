@@ -44,3 +44,6 @@ def load(path):
                 parameter=w.getparams(),
                 frames=w.readframes(w.getnframes())
                 )
+
+def write(wav, outputpath):
+    wav.write(outputpath)

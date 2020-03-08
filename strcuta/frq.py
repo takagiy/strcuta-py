@@ -64,5 +64,5 @@ def load(path_):
             amp_samples=amp_samples
             )
 
-def write(frq_, outputpath):
-    frq_.write(outputpath)
+def write(frq, outputpath):
+    frq.write(outputpath)
