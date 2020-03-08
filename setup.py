@@ -13,7 +13,7 @@ with open(path.join(pkgdir, "README.md"), encoding="utf-8") as f:
 
 setup(
         name="strcuta",
-        version="0.0.9",
+        version="0.0.10",
         url="https://github.com/takagiy/strcuta-py",
         project_urls={
             "Repository": "https://github.com/takagiy/strcuta-py",
@@ -27,4 +27,7 @@ setup(
         license="BSL-1.0",
         packages=find_packages(),
         include_package_data=False,
-        install_requires=[])
+        install_requires=[],
+        extras_require={
+            "play": ["sounddevice"]
+            })
