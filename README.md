@@ -32,7 +32,9 @@ uta.vow().write("uta_-v.wav")
 # Except for the preutterance
 uta.intime().write("uta_intime.wav")
 
-# Also play voices with the "sounddevice" package.
+# Also play voices with the "sounddevice" package. (This is an optional
+# feature. Install the "strcuta[play]" instead of the "strcuta" to install the
+# "sounddevice" together.)
 uta.play()
 uta.con().play() 
 ```
@@ -42,3 +44,5 @@ Currently, `strcuta` can load -
   * `*.frq`
   * `oto.ini`
   * `prefix.map`.
+
+You can find the early releases in the [release history](https://pypi.org/project/strcuta/#history).
