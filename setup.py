@@ -13,7 +13,7 @@ with open(path.join(pkgdir, "README.md"), encoding="utf-8") as f:
 
 setup(
         name="strcuta",
-        version="0.0.10",
+        version="0.0.11",
         url="https://github.com/takagiy/strcuta-py",
         project_urls={
             "Repository": "https://github.com/takagiy/strcuta-py",
