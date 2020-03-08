@@ -77,13 +77,19 @@ def _ms2nframes(rate, millisec):
     return round(rate * millisec / 1000)
 
 class Type:
-    def __init__(self, rootdir, oto, prefix):
+    def __init__(self, rootdir, otos, prefixes):
         self.rootdir = rootdir
-        self.oto = oto
-        self.prefix = prefix
+        self.otos = otos
+        self.prefixes = prefixes
+
+    def resolve(self, spell, key):
+        return spell + self.prefixes[key]
+
+    def oto(self, spell, key):
+        return self.otos[self.resolve(spell, key)]
 
     def voice(self, spell, key):
-        info = self.oto[spell + self.prefix[key]]
+        info = self.oto(spell, key)
         with wave.open(path.join(self.rootdir, info.source), mode="rb") as w:
             w = Wave.make(w)
 
@@ -171,9 +177,9 @@ class Voice(Wave):
 
 
 def load(path_, encoding='cp932', greedy_oto_load=False):
-    oto = otoini.load_recursive(path_, encoding=encoding, greedy_recursion=greedy_oto_load)
-    prefix = prefixmap.load(path.join(path_, 'prefix.map'), encoding=encoding)
+    otos = otoini.load_recursive(path_, encoding=encoding, greedy_recursion=greedy_oto_load)
+    prefixes = prefixmap.load(path.join(path_, 'prefix.map'), encoding=encoding)
     return Type(
             rootdir=path_,
-            oto=oto,
-            prefix=prefix)
+            otos=otos,
+            prefixes=prefixes)
