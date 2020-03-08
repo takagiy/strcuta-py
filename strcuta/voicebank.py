@@ -144,6 +144,9 @@ class Voice(Wave):
     def range_stretchable(self):
         return self.range_vow()
 
+    def range_intime(self):
+        return slice(self.cursor.end_pre, self.cursor.end)
+
 
     def pre(self):
         return self[self.range_pre()]
@@ -162,6 +165,9 @@ class Voice(Wave):
 
     def stretchable(self):
         return self.vow()
+
+    def intime(self):
+        return self[self.range_intime()]
 
 
 def load(path_):
