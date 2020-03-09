@@ -4,6 +4,7 @@
 # https://www.boost.org/LICENSE_1_0.txt)
 
 import wave as _wave
+from strcuta import cursor as _cursor
 
 class Type:
     def __init__(self, parameter, frames):
@@ -16,14 +17,13 @@ class Type:
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            k = slice(key.start * self.parameter.sampwidth, key.stop * self.parameter.sampwidth)
+            #k = slice(key.start * self.parameter.sampwidth, key.stop * self.parameter.sampwidth)
+            k = _cursor.resolve_slice(key, self.parameter.framerate, self.parameter.sampwidth)
             return Type(
                     parameter=self.parameter._replace(nframes=k.stop - k.start),
                     frames=self.frames[k])
-        elif isinstance(key, int):
-            return self.frames[key * self.parameter.sampwidth]
         else:
-            raise "not an index"
+            return self.frames[_cursor.resolve(key, self.parameter.framerate, self.parameter.sampwidth)]
 
     def write(self, outputpath):
         with _wave.open(outputpath, mode="wb") as w:
