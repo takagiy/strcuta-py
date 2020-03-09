@@ -3,7 +3,7 @@
 <!-- (See accompanying file LICENSE_1_0.txt or copy at -->
 <!-- https://www.boost.org/LICENSE_1_0.txt) -->
 
-# strcuta - Loading UTAU voice banks into the Python data structure [![PyPI](https://img.shields.io/pypi/v/strcuta)](https://pypi.org/project/strcuta) [![PyPI - Release history](https://img.shields.io/badge/pypi-look%20for%20early%20releases-orange)](https://pypi.org/project/strcuta/#history) [![PyPI - License](https://img.shields.io/pypi/l/strcuta)](https://github.com/takagiy/strcuta-py/blob/master/LICENSE_1_0.txt)
+# strcuta - Loading UTAU voice banks into the Python data structure [![PyPI](https://img.shields.io/pypi/v/strcuta)](https://pypi.org/project/strcuta) [![Github repository](https://img.shields.io/badge/github-repo-green)](https://github.com/takagiy/strcuta-py) [![Release history](https://img.shields.io/badge/pypi-look%20for%20early%20releases-orange)](https://pypi.org/project/strcuta/#history) [![License](https://img.shields.io/pypi/l/strcuta)](https://github.com/takagiy/strcuta-py/blob/master/LICENSE_1_0.txt)
 
 ## Little example
 
