@@ -27,7 +27,7 @@ class Type:
                     self.samplerate,
                     self.key_frequency,
                     self.comment,
-                    (k.stop - k.start) / (k.step or 1),
+                    int((k.stop - k.start) / (k.step or 1)),
                     self.frq_samples[k],
                     self.amp_samples[k])
         else:
