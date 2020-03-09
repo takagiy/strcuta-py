@@ -7,6 +7,7 @@ from os import path as _path
 
 from strcuta import otoini as _otoini
 from strcuta import prefixmap as _prefixmap
+from strcuta import cursor as _cursor
 from strcuta import frq as _frq
 from strcuta import wav as _wav
 
@@ -29,9 +30,6 @@ class Counts:
         self.vow = full - con
         self.stretchable = self.vow
 
-def _ms2nframes(rate, millisec):
-    return round(rate * millisec / 1000)
-
 class Type:
     def __init__(self, rootdir, otos, prefixes):
         self.rootdir = rootdir
@@ -51,14 +49,14 @@ class Type:
         rate = w.parameter.framerate
         nframes = w.parameter.nframes
 
-        nf_offset = _ms2nframes(rate, info.offset)
-        nf_con = _ms2nframes(rate, info.consonant)
-        nf_pre = _ms2nframes(rate, info.preutterance)
-        nf_ovl = _ms2nframes(rate, info.overlap)
+        nf_offset = _cursor.ms(info.offset)._resolve(rate, 1)
+        nf_con = _cursor.ms(info.consonant)._resolve(rate, 1)
+        nf_pre = _cursor.ms(info.preutterance)._resolve(rate, 1)
+        nf_ovl = _cursor.ms(info.overlap)._resolve(rate, 1)
         if info.duration != None:
-            nf_used = _ms2nframes(rate, info.duration)
+            nf_used = _cursor.ms(info.duration)._resolve(rate, 1)
         else:
-            nf_cutoff = _ms2nframes(rate, info.cutoff)
+            nf_cutoff = _cursor.ms(info.cutoff)._resolve(rate, 1)
             nf_used = nframes - nf_offset - nf_cutoff
         
         return Voice(
