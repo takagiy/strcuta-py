@@ -9,7 +9,7 @@ TARDIST := dist/strcuta-$(PKGVER).tar.gz
 WHEEL := dist/strcuta-$(PKGVER)-py3-none-any.whl
 DIST := $(TARDIST) $(WHEEL)
 
-.PHONY: all clean bdist publish.test publish.pypi licensenote
+.PHONY: all clean bdist publish.test publish.pypi licensenote genimports
 
 all: licensenote bdist
 
@@ -20,7 +20,7 @@ clean:
 
 bdist: $(DIST)
 
-$(SRC): licensenote
+$(SRC): genimports licensenote
 
 $(DIST): $(SRC) setup.py
 	python setup.py sdist bdist_wheel
@@ -37,3 +37,6 @@ publish.github: $(SRC)
 
 licensenote:
 	python script/notelicense.py
+
+genimports:
+	python script/genimports.py
