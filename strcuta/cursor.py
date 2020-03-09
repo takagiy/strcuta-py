@@ -12,7 +12,7 @@ class MilliSeconds(Cursor):
         self.value = value
 
     def _resolve(self, samplerate, samplewidth):
-        return samplewidth * int(samplerate * self.value // 1000)
+        return round(samplerate * self.value / 1000 * samplewidth)
 
 class Samples(Cursor):
     def __init__(self, value):
