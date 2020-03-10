@@ -17,13 +17,13 @@ class Type:
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            #k = slice(key.start * self.parameter.sampwidth, key.stop * self.parameter.sampwidth)
             k = _cursor.resolve_slice(key, self.parameter.framerate, self.parameter.sampwidth)
+            f = self.frames[k]
             return Type(
-                    parameter=self.parameter._replace(nframes=k.stop - k.start),
-                    frames=self.frames[k])
+                    parameter=self.parameter._replace(nframes=int(len(f) / self.parameter.sampwidth)),
+                    frames=f)
         else:
-            return self.frames[_cursor.resolve(key, self.parameter.framerate, self.parameter.sampwidth)]
+            return self.frames[_cursor.resolve_to_slice(key, self.parameter.framerate, self.parameter.sampwidth)]
 
     def write(self, outputpath):
         with _wave.open(outputpath, mode="wb") as w:

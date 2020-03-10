@@ -7,9 +7,15 @@ class Cursor:
     def _resolve(self, samplerate, samplewidth):
         pass
 
+    def __neg__(self):
+        pass
+
 class MilliSeconds(Cursor):
     def __init__(self, value):
         self.value = value
+
+    def __neg__(self):
+        return MilliSeconds(-self.value)
 
     def _resolve(self, samplerate, samplewidth):
         return round(samplerate * self.value / 1000 * samplewidth)
@@ -17,6 +23,9 @@ class MilliSeconds(Cursor):
 class Samples(Cursor):
     def __init__(self, value):
         self.value = value
+
+    def __neg__(self):
+        return Samples(-self.value)
 
     def _resolve(self, samplerate, samplewidth):
         return samplewidth * self.value
@@ -42,3 +51,8 @@ def resolve_slice(slice_, samplerate, samplewidth):
             resolve(slice_.start, samplerate, samplewidth),
             resolve(slice_.stop, samplerate, samplewidth),
             resolve(slice_.step, samplerate, samplewidth))
+
+def resolve_to_slice(cursor, samplerate, samplewidth):
+    return slice(
+            resolve(cursor, samplerate, samplewidth),
+            resolve(cursor, samplerate, samplewidth) + samplewidth)

@@ -21,15 +21,17 @@ class Type:
     def __getitem__(self, key):
         if isinstance(key, slice):
             k = _cursor.resolve_slice(key, self.samplerate, 1)
+            fs = self.frq_samples[k]
+            ams = self.amp_samples[k]
             return Type(
                     self.format_id,
                     self.sample_interval,
                     self.samplerate,
                     self.key_frequency,
                     self.comment,
-                    int((k.stop - k.start) / (k.step or 1)),
-                    self.frq_samples[k],
-                    self.amp_samples[k])
+                    len(fs),
+                    fs,
+                    ams)
         else:
             k = _cursor.resolve(key, self.samplerate, 1)
             return (self.frq_samples[k], self.amp_samples[k])
@@ -67,7 +69,7 @@ def load(path_, wave=None):
     [format_id, sample_interval, key_frequency, comment, nsamples] = _fmt_hdr.unpack_from(buffer_)
 
     if wave:
-        sample_interval = wave.getnchannels() * wave.getframerate() / sample_interval
+        samplerate = wave.parameter.nchannels * wave.parameter.framerate / sample_interval
     else:
         with _wave.open(_wave_path(path_), "rb") as w:
             samplerate = w.getnchannels() * w.getframerate() / sample_interval
