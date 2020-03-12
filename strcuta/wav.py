@@ -5,10 +5,12 @@
 
 import wave as _wave
 from strcuta import cursor as _cursor
+from strcuta import frq as _frq
 
 class Type:
-    def __init__(self, parameter, frames):
+    def __init__(self, frq, parameter, frames):
         assert parameter.nchannels == 1
+        self.frq = frq
         self.parameter = parameter
         self.frames = frames
 
@@ -19,7 +21,9 @@ class Type:
         if isinstance(key, slice):
             k = _cursor.resolve_slice(key, self.parameter.framerate, self.parameter.sampwidth)
             f = self.frames[k]
+            kf = _cursor.resolve_slice(key, self.frq.samplerate, 1 / self.frq.sample_interval)
             return Type(
+                    frq=self.frq[kf],
                     parameter=self.parameter._replace(nframes=int(len(f) / self.parameter.sampwidth)),
                     frames=f)
         else:
@@ -41,9 +45,13 @@ class Type:
         Type._audio_stream.start()
         Type._audio_stream.write(self.frames)
 
+def _frq_path(wav_path):
+    return wav_path[:-4] + "_wav.frq"
+
 def load(path):
     with _wave.open(path, mode="rb") as w:
         return Type(
+                frq=_frq.load(_frq_path(path)),
                 parameter=w.getparams(),
                 frames=w.readframes(w.getnframes())
                 )

@@ -99,11 +99,9 @@ class Voice(_wav.Type):
                 end=count.full
                 )
         super().__init__(
+                frq=wave.frq,
                 parameter=wave.parameter,
                 frames=wave.frames)
-
-    def frq(self):
-        return self._frq()
 
     def range_pre(self):
         return slice(self.cursor.start, self.cursor.end_pre)

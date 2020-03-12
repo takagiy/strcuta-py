@@ -28,7 +28,7 @@ class Samples(Cursor):
         return Samples(-self.value)
 
     def _resolve(self, samplerate, samplewidth):
-        return samplewidth * self.value
+        return round(samplewidth * self.value)
 
 def ms(milliseconds):
     return MilliSeconds(milliseconds)
@@ -40,7 +40,7 @@ def resolve(cursor, samplerate, samplewidth):
     if isinstance(cursor, Cursor):
         return cursor._resolve(samplerate, samplewidth)
     elif isinstance(cursor, int):
-        return cursor * samplewidth
+        return round(cursor * samplewidth)
     elif cursor == None:
         return None
     else:
@@ -55,4 +55,4 @@ def resolve_slice(slice_, samplerate, samplewidth):
 def resolve_to_slice(cursor, samplerate, samplewidth):
     return slice(
             resolve(cursor, samplerate, samplewidth),
-            resolve(cursor, samplerate, samplewidth) + samplewidth)
+            resolve(cursor, samplerate, samplewidth) + round(samplewidth))
