@@ -61,12 +61,6 @@ class Type:
             nf_used = nframes - nf_offset - nf_cutoff
         
         return Voice(
-                _frq=_frq_memoized(
-                    wav_path[:-4] + "_wav.frq",
-                    nf_offset,
-                    nf_used,
-                    w
-                    ),
                 wave=w[nf_offset : nf_offset + nf_used],
                 count=Counts(
                     pre=nf_pre,
@@ -76,20 +70,8 @@ class Type:
                     )
                 )
 
-def _frq_memoized(path, offset, used, wave):
-    memo = None
-    def closure():
-        nonlocal memo
-        if memo == None:
-            f = _frq.load(path, wave)
-            memo = f[round(offset / f.sample_interval) : round((offset + used) / f.sample_interval)]
-        return memo
-    return closure
-
-
 class Voice(_wav.Type):
-    def __init__(self, _frq, wave, count):
-        self._frq = _frq
+    def __init__(self, wave, count):
         self.count = count
         self.cursor = Cursors(
                 start=0,
