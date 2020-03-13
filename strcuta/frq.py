@@ -36,6 +36,9 @@ class Type:
             k = _cursor.resolve(key, self.samplerate, 1)
             return (self.frq_samples[k], self.amp_samples[k])
 
+    def __len__(self):
+        return self.nsamples
+
     def __add__(self, rhs):
         return Type(
                 format_id=self.format_id,
