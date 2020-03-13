@@ -36,6 +36,30 @@ class Type:
             k = _cursor.resolve(key, self.samplerate, 1)
             return (self.frq_samples[k], self.amp_samples[k])
 
+    def __add__(self, rhs):
+        return Type(
+                format_id=self.format_id,
+                sample_interval=self.sample_interval,
+                samplerate=self.samplerate,
+                key_frequency=self.key_frequency,
+                comment=self.comment,
+                nsamples=self.nsamples + rhs.nsamples,
+                frq_samples=self.frq_samples + rhs.frq_samples,
+                amp_samples=self.amp_samples + rhs.amp_samples
+                )
+
+    def __mul__(self, n):
+        return Type(
+                format_id=self.format_id,
+                sample_interval=self.sample_interval,
+                samplerate=self.samplerate,
+                key_frequency=self.key_frequency,
+                comment=self.comment,
+                nsamples=self.nsamples * n,
+                frq_samples=self.frq_samples * n,
+                amp_samples=self.amp_samples * n
+                )
+
     def write(self, outputpath):
         buffer_ = bytearray(_fmt_hdr.size + _fmt_smp.size * self.nsamples)
         _fmt_hdr.pack_into(

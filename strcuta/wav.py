@@ -29,6 +29,19 @@ class Type:
         else:
             return self.frames[_cursor.resolve_to_slice(key, self.parameter.framerate, self.parameter.sampwidth)]
 
+    def __add__(self, rhs):
+        return Type(
+                frq=self.frq + rhs.frq,
+                parameter=self.parameter._replace(nframes=self.parameter.nframes + rhs.parameter.nframes),
+                frames=self.frames + rhs.frames)
+
+    def __mul__(self, n):
+        return Type(
+                frq=self.frq * n,
+                parameter=self.parameter._replace(nframes=self.parameter.nframes * n),
+                frames=self.frames * n
+                )
+
     def write(self, outputpath):
         with _wave.open(outputpath, mode="wb") as w:
             w.setparams(self.parameter)
