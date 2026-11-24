@@ -37,7 +37,8 @@ class Type:
         self.prefixes = prefixes
 
     def resolve(self, spell, key):
-        return spell + self.prefixes[key]
+        prefix, suffix = self.prefixes[key]
+        return prefix + spell + suffix
 
     def oto(self, spell, key):
         return self.otos[self.resolve(spell, key)]
